@@ -5,6 +5,7 @@ import { LoginUserDto } from 'src/dto/LoginUserDto';
 import { User } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt'
+import { RegisterDto } from 'src/dto/RegisterUserDto';
 @Injectable()
 export class AuthService {
     constructor(
@@ -55,5 +56,71 @@ export class AuthService {
             access_token,
             refresh_token
         };
+    }
+
+
+    async register(user: RegisterDto): Promise<any> {
+        try {
+            // find
+            const existUserEmail = await this.userRepository.findOneBy({ email: user.email })
+            if (!existUserEmail) {
+
+                const hashPassword = await this.hashPassword(user.password)
+                // handle before create new user
+
+                const userNew = await this.userRepository.save({
+                    ...user,
+                    password: hashPassword,
+                    refresh_token: "refresh_token_string"
+                });
+
+                return userNew;
+
+            }
+            //throw new HttpException('Email is used by other user',HttpStatus.BAD_REQUEST)
+            return {
+                error: true,
+                message: "Email is used by other user"
+            }
+        } catch (error) {
+            //throw new HttpException('Eror request' + error, HttpStatus.BAD_REQUEST)
+            return {
+                error: true,
+                message: JSON.stringify(error)
+            }
+        }
+
+    }
+    async refreshToken(refresh_token: string) {
+        try {
+            const verify = await this.jwtService.verifyAsync(refresh_token, {
+                secret: process.env.JWT_SECRET_STRING
+            });
+
+            //console.log(verify);
+            const checkIndb = await this.userRepository.findOneBy(
+                { email: verify.email, refresh_token: refresh_token }
+            );
+            if (checkIndb) {
+                return this.generateToken({ id: verify.id, email: verify.email, role: verify.role })
+            }
+            return {
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: 'Refresh token is not valid'
+            }
+        } catch (error) {
+            //console.log(error);
+            return {
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: 'Token is not valid'
+            }
+        }
+    }
+    private async hashPassword(password: string): Promise<string> {
+        const saltRound = 10;
+        const salt = await bcrypt.genSalt(saltRound)
+        const hash = await bcrypt.hash(password, salt);
+
+        return hash;
     }
 }
