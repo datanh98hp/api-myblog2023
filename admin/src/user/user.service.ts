@@ -28,6 +28,7 @@ export class UserService {
                 { email: Like(`%${keyword}%`) },
                 { role: Like(`%${keyword}%`) },
             ],
+            select:['id','usermame','email','role','profileImg','created_at','updated_at'],
             take: items_per_page,
             skip: skip,
 

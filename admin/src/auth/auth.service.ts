@@ -70,14 +70,21 @@ export class AuthService {
 
                 const userNew = await this.userRepository.save({
                     ...user,
-                    // username:user.username,
-                    // email: user.email,
-                    // role: user.role,
                     password: hashPassword,
                     refresh_token: "refresh_token_string"
                 });
 
-                return userNew;
+                return {
+                    error:false,
+                    status:'success',
+                    data:{
+                        id:userNew.id,
+                        username:userNew.usermame,
+                        email:userNew.email,
+                        role: userNew.role,
+                        created_at: userNew.created_at
+                    }
+                };
 
             }
             //throw new HttpException('Email is used by other user',HttpStatus.BAD_REQUEST)
