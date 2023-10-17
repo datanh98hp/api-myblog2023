@@ -1,12 +1,13 @@
 // import { IsEmail, IsNotEmpty } from "class-validator";
 
 export class RegisterDto {
+    //id: number;
     // @IsNotEmpty()
-    username: string;
+    usermame: string;
    // @IsNotEmpty()
     password: string;
    // @IsNotEmpty()
-//@IsEmail()
+    //@IsEmail()
     email: string;
 
     // refresh_token: string;

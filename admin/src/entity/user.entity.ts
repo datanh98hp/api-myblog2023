@@ -11,9 +11,9 @@ export class User {
     @Column()
     password: string;
 
-    @Column()
+    @Column({ unique: true })
     email: string;
-    @Column({nullable:true})
+    @Column({ nullable: true, default: null })
     refresh_token:string
     @Column({default:'normal'})
     role: string;

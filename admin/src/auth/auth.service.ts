@@ -9,11 +9,11 @@ import { RegisterDto } from 'src/dto/RegisterUserDto';
 @Injectable()
 export class AuthService {
     constructor(
-        @InjectRepository(User) private userRepository: Repository<User>,
-        private readonly jwtService:JwtService 
-    ){}
+        @InjectRepository(User) private readonly userRepository: Repository<User>,
+        private readonly jwtService: JwtService
+    ) { }
 
-    async signIn(userLogin:LoginUserDto){
+    async signIn(userLogin: LoginUserDto) {
         console.log(`login with ${userLogin}`)
 
         const user = await this.userRepository.findOneBy({ email: userLogin.email })
@@ -60,7 +60,7 @@ export class AuthService {
 
 
     async register(user: RegisterDto): Promise<any> {
-        try {
+        // try {
             // find
             const existUserEmail = await this.userRepository.findOneBy({ email: user.email })
             if (!existUserEmail) {
@@ -70,6 +70,9 @@ export class AuthService {
 
                 const userNew = await this.userRepository.save({
                     ...user,
+                    // username:user.username,
+                    // email: user.email,
+                    // role: user.role,
                     password: hashPassword,
                     refresh_token: "refresh_token_string"
                 });
@@ -82,13 +85,13 @@ export class AuthService {
                 error: true,
                 message: "Email is used by other user"
             }
-        } catch (error) {
-            //throw new HttpException('Eror request' + error, HttpStatus.BAD_REQUEST)
-            return {
-                error: true,
-                message: JSON.stringify(error)
-            }
-        }
+        // } catch (error) {
+        //     //throw new HttpException('Eror request' + error, HttpStatus.BAD_REQUEST)
+        //     return {
+        //         error: true,
+        //         message: error
+        //     }
+        // }
 
     }
     async refreshToken(refresh_token: string) {
